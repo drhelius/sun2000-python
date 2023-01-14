@@ -16,9 +16,9 @@ modbus_wait_for_connnection = 2.0
 influx_url = "http://192.168.1.95:8086"
 influx_token = "nHFF0UL3kgcjWEvUjvxeUrjS7DfJFzdohW22o0VaYGSs2SH6wvbQAMJXO1uf6TgH9BDS0N-gLJ45lvYbjbd2HA=="
 influx_org = "sun2000"
-measurement = "sun2000"
-measurement_version = "1.0"
-bucket = "sensors"
+influx_measurement = "sun2000"
+influx_measurement_version = "1.0"
+influx_bucket = "sensors"
 
 inverter_starting_address = 32000
 inverter_register_count = 116
@@ -43,8 +43,8 @@ inverter_sensors = [
   ["inverter_temp", "int16", 87, 1, 0.1, "Inverter Temperature (C)", 0],
   ["inverter_insulation_r", "uint16", 88, 1, 0.001, "Inverter Insulation Resistency (Mohms)", 0],
   ["inverter_device_status", "uint16", 89, 1, 1, "Inverter Device Status", 0],
-  ["inverter_accumulated_p", "uint32", 106, 2, 0.01, "Accumulated energy yield", 0],
-  ["inverter_daily_p", "uint32", 114, 2, 0.01, "Daily energy yield", 0]
+  ["inverter_accumulated_p", "uint32", 106, 2, 0.01, "Inverter Accumulated energy yield", 0],
+  ["inverter_daily_p", "uint32", 114, 2, 0.01, "Inverter Daily energy yield", 0]
 ]
 
 meter_starting_address = 37100
@@ -91,10 +91,10 @@ def recover_all_sensors(sensors, registers):
     print(sensor[5] + ": " + str(data) + data_hex)
 
 
-def store_all_sensors(sensors, api):
+def store_all_sensors(sensors, points):
   for sensor in sensors:
-    p = Point(measurement).tag("version", measurement_version).field(sensor[0], sensor[6])
-    api.write(bucket=bucket, record=p)
+    p = Point(influx_measurement).tag("version", influx_measurement_version).field(sensor[0], sensor[6])
+    points.append(p)
 
 
 def gather_modbus_data():
@@ -126,8 +126,12 @@ def store_influx_data():
 
     write_api = influx_client.write_api(write_options=SYNCHRONOUS)
 
-    store_all_sensors(inverter_sensors, write_api)
-    store_all_sensors(meter_sensors, write_api)
+    points = []
+
+    store_all_sensors(inverter_sensors, points)
+    store_all_sensors(meter_sensors, points)
+
+    write_api.write(bucket=influx_bucket, record=points)
 
     influx_client.close()
     print(">> Influx connection closed: " + influx_url)
