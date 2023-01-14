@@ -1,0 +1,1673 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 17,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 6000,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "orange",
+                "value": null
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 0,
+        "y": 0
+      },
+      "id": 32,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": false
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"math\"\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: -5m)\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"meter_p\")\r\n  |> map(fn: (r) => ({r with _value: math.mMax(x: 0.0, y: float(v:r._value) * -1.0)}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumo Grid Ahora",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "orange",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 25,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "meter_p 1.0"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 3,
+        "y": 0
+      },
+      "id": 25,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"math\"\r\n\r\ntimeStart = uint(v: v.timeRangeStart)\r\ntimeStop = uint(v: v.timeRangeStop)\r\nrangeSeconds = int(v: duration(v: timeStop - timeStart))\r\naggregation = duration(v: rangeSeconds / 4000)\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: v.timeRangeStart, stop:v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"meter_p\")\r\n  |> aggregateWindow(every: aggregation, fn: mean, createEmpty: false)\r\n  |> map(fn: (r) => ({r with _value: math.mMax(x: 0.0, y: float(v:r._value) * -1.0)}))\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumo Grid",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "orange",
+            "mode": "fixed"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyEUR"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 9,
+        "y": 0
+      },
+      "id": 43,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"math\"\r\nimport \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"Europe/Madrid\")\r\npreciokWh = 0.19\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: date.truncate(t: v.timeRangeStart, unit: 1d), stop: date.add(d: 1d, to: date.truncate(t: v.timeRangeStart, unit: 1d)))\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"meter_p\")\r\n  |> map(fn: (r) => ({r with _value: math.mMax(x: 0.0, y: float(v:r._value) * -0.001 * preciokWh)}))\r\n  |> integral(unit: 1h)\r\n\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Gastos Hoy",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 6000,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 12,
+        "y": 0
+      },
+      "id": 31,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": false
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"math\"\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: -5m)\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"inverter_ac_p\" or r._field == \"meter_p\")\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> map(fn: (r) => ({r with _value: ( (r.inverter_ac_p * 1000.0) - (math.mMax(x: 0.0, y: float(v:r.meter_p))) + (math.mMax(x: 0.0, y: float(v:r.meter_p) * -1.0)) ) }))\r\n  |> drop(columns: [\"inverter_ac_p\", \"meter_p\"])",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumo Total Ahora",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 25,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "1.0"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 15,
+        "y": 0
+      },
+      "id": 27,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"math\"\r\n\r\ntimeStart = uint(v: v.timeRangeStart)\r\ntimeStop = uint(v: v.timeRangeStop)\r\nrangeSeconds = int(v: duration(v: timeStop - timeStart))\r\naggregation = duration(v: rangeSeconds / 4000)\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: v.timeRangeStart, stop:v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"inverter_ac_p\" or r._field == \"meter_p\")\r\n  |> aggregateWindow(every: aggregation, fn: mean, createEmpty: false)\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> map(fn: (r) => ({r with _value: ( (r.inverter_ac_p * 1000.0) - (math.mMax(x: 0.0, y: float(v:r.meter_p))) + (math.mMax(x: 0.0, y: float(v:r.meter_p) * -1.0)) ) }))\r\n  |> drop(columns: [\"inverter_ac_p\", \"meter_p\"])\r\n\r\n\r\n  ",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumo Total",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "purple",
+                  "index": 1,
+                  "text": "STDBY (init)"
+                },
+                "1": {
+                  "color": "purple",
+                  "index": 2,
+                  "text": "STDBY (resistance)"
+                },
+                "2": {
+                  "color": "purple",
+                  "index": 3,
+                  "text": "STDBY (irradiation)"
+                },
+                "3": {
+                  "color": "purple",
+                  "index": 4,
+                  "text": "STDBY (grid)"
+                },
+                "512": {
+                  "color": "green",
+                  "index": 5,
+                  "text": "ON"
+                },
+                "513": {
+                  "color": "yellow",
+                  "index": 6,
+                  "text": "ON (limited)"
+                },
+                "514": {
+                  "color": "orange",
+                  "index": 7,
+                  "text": "ON (derating)"
+                },
+                "40960": {
+                  "color": "purple",
+                  "index": 0,
+                  "text": "STDBY"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "from": 768,
+                "result": {
+                  "color": "red",
+                  "index": 8,
+                  "text": "SHUTDOWN"
+                },
+                "to": 1024
+              },
+              "type": "range"
+            }
+          ],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 21,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "from(bucket: \"sensors\")\r\n  |> range(start: -5m)\r\n  |> filter(fn: (r) =>\r\n    r._measurement == \"sun2000\" and\r\n    r._field == \"inverter_device_status\"\r\n  )",
+          "refId": "A"
+        }
+      ],
+      "title": "Estado Inversor",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "orange",
+            "mode": "fixed"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "watth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 9,
+        "y": 3
+      },
+      "id": 45,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"math\"\r\nimport \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"Europe/Madrid\")\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: date.truncate(t: v.timeRangeStart, unit: 1d), stop: date.add(d: 1d, to: date.truncate(t: v.timeRangeStart, unit: 1d)))\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"meter_p\")\r\n  |> map(fn: (r) => ({r with _value: math.mMax(x: 0.0, y: float(v:r._value) * -1.0)}))\r\n  |> integral(unit: 1h)\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumo Grid Hoy",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "max": 3500,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 0,
+        "y": 6
+      },
+      "id": 40,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^meter_p 1\\.0$/",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": false
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"math\"\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: -5m)\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"meter_p\")\r\n  |> map(fn: (r) => ({r with _value: math.mMax(x: 0.0, y: float(v:r._value))}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Potencia Exportada Ahora",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 25,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "meter_p 1.0"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 3,
+        "y": 6
+      },
+      "id": 49,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"math\"\r\n\r\ntimeStart = uint(v: v.timeRangeStart)\r\ntimeStop = uint(v: v.timeRangeStop)\r\nrangeSeconds = int(v: duration(v: timeStop - timeStart))\r\naggregation = duration(v: rangeSeconds / 4000)\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: v.timeRangeStart, stop:v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"meter_p\")\r\n  |> aggregateWindow(every: aggregation, fn: mean, createEmpty: false)\r\n  |> map(fn: (r) => ({r with _value: math.mMax(x: 0.0, y: float(v:r._value))}))\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Potencia Exportada",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyEUR"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 9,
+        "y": 6
+      },
+      "id": 44,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"math\"\r\nimport \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"Europe/Madrid\")\r\npreciokWh = 0.10\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: date.truncate(t: v.timeRangeStart, unit: 1d), stop: date.add(d: 1d, to: date.truncate(t: v.timeRangeStart, unit: 1d)))\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"meter_p\")\r\n  |> map(fn: (r) => ({r with _value: math.mMax(x: 0.0, y: float(v:r._value) * 0.001 * preciokWh)}))\r\n  |> integral(unit: 1h)\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Ingresos Hoy",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 3500,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "yellow",
+                "value": null
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 12,
+        "y": 6
+      },
+      "id": 33,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": false
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"math\"\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: -5m)\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"inverter_ac_p\" or r._field == \"meter_p\")\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> map(fn: (r) => ({r with _value: ((r.inverter_ac_p * 1000.0) - (math.mMax(x: 0.0, y: float(v:r.meter_p))))}))\r\n  |> drop(columns: [\"inverter_ac_p\", \"meter_p\"])",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumo Solar Ahora",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 25,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 15,
+        "y": 6
+      },
+      "id": 29,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"math\"\r\n\r\ntimeStart = uint(v: v.timeRangeStart)\r\ntimeStop = uint(v: v.timeRangeStop)\r\nrangeSeconds = int(v: duration(v: timeStop - timeStart))\r\naggregation = duration(v: rangeSeconds / 4000)\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: v.timeRangeStart, stop:v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"inverter_ac_p\" or r._field == \"meter_p\")\r\n  |> aggregateWindow(every: aggregation, fn: mean, createEmpty: false)\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> map(fn: (r) => ({r with _value: ((r.inverter_ac_p * 1000.0) - (math.mMax(x: 0.0, y: float(v:r.meter_p))))}))\r\n  |> drop(columns: [\"inverter_ac_p\", \"meter_p\"])\r\n\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumo Solar",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 21,
+        "y": 6
+      },
+      "id": 42,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"math\"\r\nimport \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"Europe/Madrid\")\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: date.truncate(t: v.timeRangeStart, unit: 1d), stop: date.add(d: 1d, to: date.truncate(t: v.timeRangeStart, unit: 1d)))\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"inverter_ac_p\" or r._field == \"meter_p\")\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> map(fn: (r) => ({r with _value: float(v: r.inverter_ac_p) - (math.mMax(x: 0.0, y: float(v:r.meter_p) * 0.001))}))\r\n  |> integral(unit: 1h)",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumo Solar Hoy",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 9,
+        "y": 9
+      },
+      "id": 47,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"date\"\r\nimport \"timezone\"\r\nimport \"math\"\r\n\r\noption location = timezone.location(name: \"Europe/Madrid\")\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: date.truncate(t: v.timeRangeStart, unit: 1d), stop: date.add(d: 1d, to: date.truncate(t: v.timeRangeStart, unit: 1d)))\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"meter_p\")\r\n  |> map(fn: (r) => ({r with _value: math.mMax(x: 0.0, y: float(v:r._value) * 0.001)}))\r\n  |> integral(unit: 1h)",
+          "refId": "A"
+        }
+      ],
+      "title": "Potencia Exportada Hoy",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyEUR"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 21,
+        "y": 9
+      },
+      "id": 46,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"math\"\r\nimport \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"Europe/Madrid\")\r\npreciokWh = 0.19\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: date.truncate(t: v.timeRangeStart, unit: 1d), stop: date.add(d: 1d, to: date.truncate(t: v.timeRangeStart, unit: 1d)))\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"inverter_ac_p\" or r._field == \"meter_p\")\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> map(fn: (r) => ({r with _value: (float(v: r.inverter_ac_p) - (math.mMax(x: 0.0, y: float(v:r.meter_p) * 0.001))) * preciokWh}))\r\n  |> integral(unit: 1h)",
+          "refId": "A"
+        }
+      ],
+      "title": "Ahorrado Hoy",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 3.5,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 0,
+        "y": 12
+      },
+      "id": 38,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": false
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "from(bucket: \"sensors\")\r\n  |> range(start: -5m)\r\n  |> filter(fn: (r) =>\r\n    r._measurement == \"sun2000\" and\r\n    r._field == \"inverter_ac_p\"\r\n  )",
+          "refId": "A"
+        }
+      ],
+      "title": "Potencia Generada Ahora",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "purple",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 25,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 3,
+        "y": 12
+      },
+      "id": 37,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "timeStart = uint(v: v.timeRangeStart)\r\ntimeStop = uint(v: v.timeRangeStop)\r\nrangeSeconds = int(v: duration(v: timeStop - timeStart))\r\naggregation = duration(v: rangeSeconds / 4000)\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: v.timeRangeStart, stop:v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._measurement == \"sun2000\" and\r\n    r._field == \"inverter_ac_p\"\r\n  )\r\n  |> aggregateWindow(every: aggregation, fn: mean, createEmpty: false)",
+          "refId": "A"
+        }
+      ],
+      "title": "Potencia Generada",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "purple",
+            "mode": "fixed"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 9,
+        "y": 12
+      },
+      "id": 23,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"Europe/Madrid\")\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: date.truncate(t: v.timeRangeStart, unit: 1d), stop: date.add(d: 1d, to: date.truncate(t: v.timeRangeStart, unit: 1d)))\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\" and r._field == \"inverter_ac_p\")\r\n  |> integral(unit: 1h)",
+          "refId": "A"
+        }
+      ],
+      "title": "Potencia Generada Hoy",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 5,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "total.*"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Consumo Total"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "solar.*"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Consumo Solar"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "id": 35,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "import \"math\"\r\nimport \"influxdata/influxdb/schema\"\r\n\r\ntimeStart = uint(v: v.timeRangeStart)\r\ntimeStop = uint(v: v.timeRangeStop)\r\nrangeSeconds = int(v: duration(v: timeStop - timeStart))\r\naggregation = duration(v: rangeSeconds / 4000)\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: v.timeRangeStart, stop:v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"inverter_ac_p\" or r._field == \"meter_p\")\r\n  |> aggregateWindow(every: aggregation, fn: mean, createEmpty: false)\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> map(fn: (r) => ({r with _value: ((r.inverter_ac_p * 1000.0) - (math.mMax(x: 0.0, y: float(v:r.meter_p))))}))\r\n  |> map(fn: (r) => ({r with _field: \"solar\"}))\r\n  |> drop(columns: [\"inverter_ac_p\", \"meter_p\"])\r\n  |> schema.fieldsAsCols()\r\n  |> yield(name: \"Consumo solar\")\r\n\r\nfrom(bucket: \"sensors\")\r\n  |> range(start: v.timeRangeStart, stop:v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"sun2000\")\r\n  |> filter(fn: (r) => r._field == \"inverter_ac_p\" or r._field == \"meter_p\")\r\n  |> aggregateWindow(every: aggregation, fn: mean, createEmpty: false)\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> map(fn: (r) => ({r with _value: ( (r.inverter_ac_p * 1000.0) - (math.mMax(x: 0.0, y: float(v:r.meter_p))) + (math.mMax(x: 0.0, y: float(v:r.meter_p) * -1.0)) ) }))\r\n  |> map(fn: (r) => ({r with _field: \"total\"}))\r\n  |> drop(columns: [\"inverter_ac_p\", \"meter_p\"])\r\n  |> schema.fieldsAsCols()\r\n  |> yield(name: \"Consumo total\")\r\n\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Comparativa Consumo",
+      "transformations": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "3X6Sn9t4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "purple",
+            "mode": "fixed"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 9,
+        "y": 15
+      },
+      "id": 22,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "3X6Sn9t4k"
+          },
+          "query": "from(bucket: \"sensors\")\r\n  |> range(start: -5m)\r\n  |> filter(fn: (r) =>\r\n    r._measurement == \"sun2000\" and\r\n    r._field == \"inverter_ac_p_peak\"\r\n  )",
+          "refId": "A"
+        }
+      ],
+      "title": "Potencia Pico Generada Hoy",
+      "type": "stat"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Estado Actual",
+  "uid": "UyARC9tVk",
+  "version": 15,
+  "weekStart": ""
+}
